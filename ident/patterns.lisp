@@ -17,10 +17,42 @@
 			:min-out (pat-min-out group-patterns)
 			:max-out (pat-max-out group-patterns)))
 
+#|
 (defun make-group-patterns (smarts data &optional
 			    (smiles-map (cl-store:restore
 					 "/data/progr/spcr/data/sp-smiles-map.dat")))
   (let* ((patterns (make-patterns smarts smiles-map data))
+	 (outputs (map 'list #'(lambda (p) (aref (second p) 0)) patterns)))
+    (%make-group-patterns
+     :patterns patterns
+     :smarts smarts
+     :min-out (apply #'min outputs)
+     :max-out (apply #'max outputs))))|#
+
+(defun reduce-indexes (indexes smarts &optional
+			     (smiles-map (cl-store:restore
+					  "/data/progr/spcr/data/sp-smiles-map.dat")))
+	(let ((grep (obgrep-string smarts (mapcar #'second smiles-map))))
+	  (remove-if #'(lambda (x)
+			 (or (and (not (null indexes))
+				  (not (member x indexes)))
+			     (not (elt grep x))))
+		     (loop for i from 0 below 5228 collect i))))
+
+(defun inputs-with-indexes (inputs indexes)
+  (coerce (loop for i in indexes collect (svref inputs i)) 'simple-vector))
+
+(defun make-group-patterns (smarts data &optional indexes
+			    (smiles-map (cl-store:restore
+					 "/data/progr/spcr/data/sp-smiles-map.dat")))
+  (let* ((patterns (make-patterns smarts
+				  (if indexes
+				      (remove-if #'(lambda (x) (not (member (car x) indexes)))
+						 smiles-map)
+				      smiles-map)
+				  (if indexes
+				      (inputs-with-indexes data indexes)
+				      data)))
 	 (outputs (map 'list #'(lambda (p) (aref (second p) 0)) patterns)))
     (%make-group-patterns
      :patterns patterns
