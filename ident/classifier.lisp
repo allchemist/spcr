@@ -1,14 +1,9 @@
 (in-package :spcr)
 
- `((:eps . 0.2) (:mu . 2.0) (:epochs . 200)
-   (:restarts . 2) (:recompute . 10) (:thr . 1.e-5) (:verbosity . 4))
- `((:method . :rprop) (:d0 . 0.01) (:dmin . 1.e-7) (:dmax . 2.0) (:epochs . 100)
-   (:hidden-num . 15) (:candidates . 4) (:restarts . 1) (:recompute . 20) (:thr . 1.e-5) (:verbosity . 6))
-
 (defun make-simple-group-classifier (patterns test-part params cc-params)
-  (make-cascor-classifier (pat-patterns patterns) test-part 'tanh-fn
-			  (* 0.75 (/ (- (pat-max-out patterns) (pat-min-out patterns)) 2))
-			  (param cc-params :hidden-num) params cc-params))
+  (make-cascade-classifier (pat-patterns patterns) test-part 'tanh-fn
+			   (* 0.75 (/ (- (pat-max-out patterns) (pat-min-out patterns)) 2))
+			   (param cc-params :hidden-num) params cc-params))						   
 
 (defun make-preproc-group-classifier (patterns pcac test-part params cc-params)
   (change-class
@@ -20,7 +15,7 @@
     (dolist (pcac pcacs)
       (info "~%")
       (info "Next codec~%")
-      (push (make-preproc-group-classifier patterns pcac test-part params cc-params)
+      (push (make-preproc-group-classifier patterns pcac test-part (copy-tree params) (copy-tree cc-params))
 	    classifiers))
     (make-instance 'boost-classifier
 		   :output-ranges (list (pat-min-out patterns) (pat-max-out patterns))
@@ -38,7 +33,7 @@
 		      smarts (if idx-list (length idx-list) "all"))
 		(make-group-patterns smarts data idx-list)
 	      (info "Training classifier for smarts ~A.~%~%" smarts))
-	    pcacs nil params cc-params)))
+	    pcacs :auto params cc-params)))
 	(t (cons (progn
 		   (gc)
 		   (let ((smarts (tree-smarts-idx (car subtree))))

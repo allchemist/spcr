@@ -101,6 +101,6 @@
 ;	      (/ (aref (second p) 0)
 ;		 (if (= val (first range)) (/ (count nil grep) (count nil grep :test-not #'eql)) 1)))
 ;	(when (and (= val (first range))
-;		   (> (aref (second p) 0) -0.5))
-;	  (setf (aref (second p) 0) -0.5))))
+;		   (> (aref (second p) 0) -0.3))
+;	  (setf (aref (second p) 0) -0.3))))
     (coerce patterns 'simple-vector)))
