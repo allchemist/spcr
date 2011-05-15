@@ -71,8 +71,8 @@
 	 #'(lambda (x) (eval-splines x spl))
 	 (linspace 450.0 3966.0 880))))
 
-(defun plot-pattern (pattern)
+(defun plot-pattern (pattern &rest keys &key &allow-other-keys)
   (let ((arr (make-matrix (list (dim0 pattern) 2))))
     (setf (col arr 0) (linspace 450.0 3966.0 (dim0 pattern)))
     (setf (col arr 1) pattern)
-    (make-plot arr :draw-with 'lines)))
+    (apply #'make-plot arr :draw-with 'lines keys)))

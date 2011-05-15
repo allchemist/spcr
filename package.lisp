@@ -1,5 +1,5 @@
 (defpackage :spcr
-    (:use :cl :cl-openbabel :cl-pubchem :gplt :split-sequence :cl-store :sb-math :annil :ltk))
+    (:use :cl :cl-openbabel :cl-pubchem :gplt :split-sequence :cl-store :sb-math :annil))
 
 (in-package :spcr)
 

@@ -7,7 +7,7 @@
   :description "Chemical compounds identifier through IR spectra"
   :author "Khokhlov Ivan"
   :licence "BSD"
-  :depends-on (split-sequence gplt cl-openbabel cl-pubchem cl-store sb-math annil ltk)
+  :depends-on (split-sequence gplt cl-openbabel cl-pubchem cl-store sb-math annil s-dot ltk)
   :serial t
   :components
   ((:file "package")

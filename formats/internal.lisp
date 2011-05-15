@@ -44,9 +44,25 @@
 (defun parse-xunits (xunits) (intern (string-upcase xunits) :spcr))
 (defun parse-yunits (yunits) (intern (string-upcase yunits) :spcr))
 
-(defun plot-spectrum (spectrum)
+(defun plot-spectrum (spectrum &key codec op subname out)
   (let* ((data (sp-data spectrum))
-	 (arr (make-matrix (list (dim0 data) 2))))
-    (setf (col arr 0) (linspace (sp-xmin spectrum) (sp-xmax spectrum) (dim0 data)))
-    (setf (col arr 1) data)
-    (make-plot arr :title (sp-name spectrum) :draw-with 'lines)))
+	 (arr (make-matrix (list (dim0 data) 2)))
+	 (title (if subname (strings (sp-name spectrum) ", " subname) (sp-name spectrum))))
+    (when codec (setf data (case op
+			     (:decode (decode codec (encode codec (copy data))))
+			     (:diff (m- (decode codec (encode codec (copy data))) data))
+			     (t (encode codec (copy data))))))
+    (setf (col arr 0) (nreverse (linspace (sp-xmin spectrum) (sp-xmax spectrum) (dim0 data))))
+    (setf (col arr 1) (reverse data))
+    (make-plot arr :title title :draw-with 'lines
+	       :ranges `((,(sp-xmax spectrum) ,(sp-xmin spectrum))
+			 ,@(unless (and codec (not (eq op :decode))) `((0 1))))
+	       :labels (mapcar #'string `(,(sp-xunits spectrum) ,(sp-yunits spectrum)))
+	       :output out)))
+
+(defun read-spectrum (path)
+  (parse-spectrum-format
+   (case (intern (string-upcase (subseq path (1+ (position #\. path :from-end t)))) :keyword)
+     (:jdx (read-jdx path))
+     (:dat (read-gmdb path))
+     (t (error "Unknown spectrum format")))))

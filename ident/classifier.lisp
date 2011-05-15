@@ -44,7 +44,7 @@
 				smarts (if idx-list (length idx-list) "all"))
 			  (make-group-patterns smarts data idx-list)
 			(info "Training classifier for smarts ~A.~%~%" smarts))
-		      pcacs nil params cc-params)))
+		      pcacs :auto params cc-params)))
 		 (mapcar #'(lambda (x)
 			     (%make-subtree-classifier x data pcacs params
 						       (setf (param (copy-tree cc-params) :hidden-num)
@@ -91,3 +91,9 @@
 (defun classify-subtree (classifier input)
   (%check-classify-group
    (%classify-group (classifiers-tree classifier) (smarts-tree classifier) input)))
+
+(defclass tree-classifier ()
+  ((classifiers :initarg :classifiers :accessor classifiers-list)))
+
+(defun make-tree-classifier (&rest classifiers)
+  (make-instance 'tree-classifier :classifiers classifiers))
